@@ -1,0 +1,8 @@
+SAIKU README
+------------------------------------------------------------------
+
+Saiku server is  a modular OLAP server. Allowing you to use and internal Mondrian
+Server or 3rd party XML/A servers for data sources, Saiku Server allows you to integrate
+OLAP into your application with no MDX knowledge or writing. Saiku server also handles
+security, and query saving and loading.
+

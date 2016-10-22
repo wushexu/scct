@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/jdbc 
+                           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+                           http://www.springframework.org/schema/data/jpa
+                           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<jpa:repositories base-package="foross.scctbi.data" />
+	<jpa:auditing auditor-aware-ref="auditorAware" />
+	<!-- tx:annotation-driven -->
+
+	<bean id="auditorAware" class="foross.scctbi.data.AuditorAwareImpl" />
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+		p:entityManagerFactory-ref="entityManagerFactory" />
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		p:dataSource-ref="dataSource"><!--  p:persistenceUnitName="scctbi" -->
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="database" value="${db.type}"></property>
+				<property name="showSql" value="${jpa.showSql}"></property>
+				<property name="generateDdl" value="${jpa.generateDdl}"></property>
+				<property name="databasePlatform" value="${jpa.dialect}"></property>
+			</bean>
+		</property>
+		<property name="packagesToScan" value="foross.scctbi.data"/>
+	    <!-- <property name = "persistenceXmlLocation" 
+	        value = "classpath:/META-INF/spring-persistence.xml" /> -->
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${db.jdbcDriver}" />
+		<property name="url" value="${db.connectionURL}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+		<property name="initialSize" value="2" />
+	</bean>
+	
+	<!-- <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    	<property name="jndiName" value="java:jboss/datasources/scctbianalysis"/>
+	</bean> -->
+	
+</beans>

@@ -1,0 +1,10 @@
+type=OLAP
+name=SCCT-BI
+
+driver=mondrian.olap4j.MondrianOlap4jDriver
+location=jdbc:mondrian:Jdbc=jdbc:sqlserver://10.99.200.122:1433;jdbc.databaseName=scctbi_tst;Catalog=res:scctbi/Schema-ALL.xml;
+username=s_SCCT
+password=Initial1
+
+# driver=mondrian.olap4j.MondrianOlap4jDriver
+# location=jdbc:mondrian:Datasource=java:jboss/datasources/scctbi;Catalog=res:scctbi/Schema-ALL.xml;

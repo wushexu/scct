@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<decorators defaultdir="/WEB-INF/views/decorators">
+	<!-- Any urls that are excluded will never be decorated by Sitemesh -->
+	<excludes>
+		<pattern>/reports/*/body*</pattern>
+		<pattern>/reports/code/*/body*</pattern>
+	</excludes>
+	
+	<decorator name="null-layout" page="null-layout.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+
+	<decorator name="no-navbar" page="no-navbar-layout.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+
+	<decorator name="main-layout" page="main-layout.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+
+</decorators>

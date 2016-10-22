@@ -1,0 +1,940 @@
+<Schema name="Delivery Order">
+
+	<Dimension name="Status">
+		<Hierarchy hasAll="true" allMemberName="All Status" primaryKey="statusCode">
+			<Table name="orderStatus" />
+			<Level name="Status" column="statusCode" ordinalColumn="milestoneCode" uniqueMembers="true" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="deliveryOrder">
+		<Hierarchy hasAll="true" allMemberName="All deliveryOrder" primaryKey="dlvryNum">
+			<Table name="deliveryOrder" />
+			<Level name="DeliveryNumber" column="dlvryNum">
+				<Property name="Carrier Code" column="carrCode" />
+			</Level>
+		</Hierarchy>
+	</Dimension>
+	
+	<Dimension name="PreCarrier" caption="1st Leg Carrier">
+		<Hierarchy hasAll="true" allMemberName="All PreCarriers" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="preCarrier" rightKey="carrCode">
+				<Table name="deliveryOrder" />
+				<Table name="carrier" />
+			</Join>
+			<Level name="PreCarrier Code" table="carrier" column="carrCode" uniqueMembers="true" caption="1st Leg Carrier Code"/>
+			<Level name="PreCarrier Name" table="carrier" column="carrName" caption="1st Leg Carrier Name"/>
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="Carrier" caption="2nd Leg Carrier">
+		<Hierarchy hasAll="true" allMemberName="All Carriers" primaryKey="carrCode">
+			<Table name="carrier" />
+			<Level name="Carrier Code" column="carrCode" uniqueMembers="true" caption="2nd Leg Carrier Code"/>
+			<Level name="Carrier Name" column="carrName" caption="2nd Leg Carrier Name"/>
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="MOT">
+		<Hierarchy hasAll="true" allMemberName="All MOT" primaryKey="motCode">
+			<Table name="mot" />
+			<Level name="MOT" column="motName" uniqueMembers="true" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="ShipToCountry">
+		<Hierarchy hasAll="true" allMemberName="All Countries" primaryKey="ctryCode">
+			<Table name="country" />
+			<Level name="Region" column="ctryRegion" uniqueMembers="true" />
+			<Level name="SubGeo" column="subGeo" uniqueMembers="true" />
+			<Level name="Country" nameColumn="ctryName" column="ctryCode" uniqueMembers="true" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="ServiceLevel">
+		<Hierarchy hasAll="true" allMemberName="All ServiceLevels" primaryKey="dlvryNum">
+			<Table name="deliveryOrder" />
+			<Level name="ServiceLevel" column="serviceLevel" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="ShippingPoint">
+		<Hierarchy hasAll="true" allMemberName="All ShippingPoints" primaryKey="shpPointCode">
+			<Table name="shpPoint" />
+			<Level name="ShippingPoint" column="shpPointCode" nameColumn="shpPointName" uniqueMembers="true" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="OrderType">
+		<Hierarchy hasAll="true" allMemberName="All OrderTypes" primaryKey="dlvryNum">
+			<Table name="deliveryOrder" />
+			<Level name="OrderType" column="orderType" />
+		</Hierarchy>
+	</Dimension>
+	
+
+	<!-- KPI -->
+
+	<Dimension name="KPI-CDD" caption="KPI: CDD">
+		<Hierarchy hasAll="true" allMemberName="All KPI-CDD" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="dk01Color" rightKey="code">
+				<Table name="deliveryOrder" />
+				<Table name="kpiColor" />
+			</Join>
+			<Level name="CDD" table="kpiColor" column="code" nameColumn="name" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="KPI-IOD" caption="KPI: IOD">
+		<Hierarchy hasAll="true" allMemberName="All KPI-IOD" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="dk02Color" rightKey="code">
+				<Table name="deliveryOrder" />
+				<Table name="kpiColor" />
+			</Join>
+			<Level name="IOD" table="kpiColor" column="code" nameColumn="name" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="KPI-M3.5" caption="KPI: M3.5">
+		<Hierarchy hasAll="true" allMemberName="All KPI-M3.5" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="dk03Color" rightKey="code">
+				<Table name="deliveryOrder" />
+				<Table name="kpiColor" />
+			</Join>
+			<Level name="M3.5" table="kpiColor" column="code" nameColumn="name" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="KPI-M4.5" caption="KPI: M4.5">
+		<Hierarchy hasAll="true" allMemberName="All KPI-M4.5" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="dk04Color" rightKey="code">
+				<Table name="deliveryOrder" />
+				<Table name="kpiColor" />
+			</Join>
+			<Level name="M4.5" table="kpiColor" column="code" nameColumn="name" />
+		</Hierarchy>
+	</Dimension>
+
+	<Dimension name="KPI-TOTH" caption="KPI: TOTH">
+		<Hierarchy hasAll="true" allMemberName="All KPI-TOTH" primaryKeyTable="deliveryOrder" primaryKey="dlvryNum">
+			<Join leftKey="dk05Color" rightKey="code">
+				<Table name="deliveryOrder" />
+				<Table name="kpiColor" />
+			</Join>
+			<Level name="TOTH" table="kpiColor" column="code" nameColumn="name" />
+		</Hierarchy>
+	</Dimension>
+
+	<!-- <Dimension name="Route"> <Hierarchy hasAll="true" allMemberName="All Route" primaryKey="route"> <Table name="route" 
+		/> <Level name="Route" column="route" uniqueMembers="true" /> </Hierarchy> </Dimension> -->
+
+	<Cube name="DO_All" visible="true" cache="true" enabled="true">
+		<Table name="deliveryOrderFact" />
+
+		<Dimension name="CDD" allMemberName="All CDD Dates" caption="Date: CDD" type="TimeDimension" foreignKey="cdd_date_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="POD" allMemberName="All POD Dates" caption="Date: POD" type="TimeDimension" foreignKey="pod_date_id">
+			<Hierarchy hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CarrPickupDate" allMemberName="All carrPickupDate" caption="Date: GI Date" type="TimeDimension" foreignKey="carrPickupDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CreatedDate" allMemberName="All CreatedDate" caption="Date: CreatedDate" type="TimeDimension" foreignKey="createdDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="UpliftDate" allMemberName="All UpliftDate" caption="Date: UpliftDate" type="TimeDimension" foreignKey="upliftDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<DimensionUsage name="deliveryOrder" source="deliveryOrder" foreignKey="dlvryNum" visible="false" />
+		<DimensionUsage name="Carrier" source="Carrier" foreignKey="carrCode" />
+		<DimensionUsage name="PreCarrier" source="PreCarrier" foreignKey="dlvryNum" />
+		<DimensionUsage name="MOT" source="MOT" foreignKey="modeOfTrspn" />
+		<DimensionUsage name="ShipToCountry" source="ShipToCountry" foreignKey="shipToCtryCd" />
+		<DimensionUsage name="Status" source="Status" foreignKey="statusCode" />
+		<DimensionUsage name="OrderType" source="OrderType" foreignKey="dlvryNum" />
+		<DimensionUsage name="ServiceLevel" source="ServiceLevel" foreignKey="dlvryNum" />
+		<DimensionUsage name="ShippingPoint" source="ShippingPoint" foreignKey="shpngCode" />
+		
+		<DimensionUsage name="KPI-CDD" source="KPI-CDD" foreignKey="dlvryNum" />
+		<DimensionUsage name="KPI-IOD" source="KPI-IOD" foreignKey="dlvryNum" />
+		<DimensionUsage name="KPI-M3.5" source="KPI-M3.5" foreignKey="dlvryNum" />
+		<DimensionUsage name="KPI-M4.5" source="KPI-M4.5" foreignKey="dlvryNum" />
+		<DimensionUsage name="KPI-TOTH" source="KPI-TOTH" foreignKey="dlvryNum" />
+
+		<!-- <Dimension name="X1Reason" foreignKey="X1ReasonCode">
+			<Hierarchy hasAll="true" allMemberName="All Reasons" primaryKey="reasonCode">
+				<Table name="reason" />
+				<Level name="category" column="category" uniqueMembers="true" />
+				<Level name="ReasonCode" column="reasonCode" nameColumn="reasonName" uniqueMembers="true" />
+			</Hierarchy>
+		</Dimension> -->
+
+		<Dimension name="ReasonCategory" foreignKey="CDD_detractor">
+			<Hierarchy hasAll="true" allMemberName="All Categories" primaryKey="detractor">
+				<Table name="reasonCategory" />
+				<Level name="L1" column="L1" ordinalColumn="L1_order" uniqueMembers="true" />
+				<Level name="Category" column="detractor" ordinalColumn="Detractor_order" uniqueMembers="true" />
+			</Hierarchy>
+		</Dimension>
+
+		<!-- Measures -->
+
+		<Measure name="Count" column="id" aggregator="count" formatString="#,#" />
+
+		<!-- <Measure name="Item Count" column="dlvryItemQty" aggregator="sum" formatString="#,#" /> -->
+
+		<CalculatedMember name="Status %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Status])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Country %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Countries])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="MOT %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All MOT])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Carrier %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Carriers])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="ServiceLevel %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All ServiceLevels])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="ShippingPoint %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All ShippingPoints])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="OrderType %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All OrderTypes])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<!-- KPI Measures -->
+
+		<CalculatedMember name="KPI-CDD %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All KPI-CDD])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="KPI-IOD %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All KPI-IOD])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="KPI-M3.5 %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All KPI-M3.5])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="KPI-M4.5 %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All KPI-M4.5])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="KPI-TOTH %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All KPI-TOTH])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+	</Cube>
+	
+	<Cube name="DO_Item" visible="true" cache="true" enabled="true">
+		<Table name="deliveryOrderItemFact" />
+
+		<Dimension name="CDD" allMemberName="All CDD Dates" caption="Date: CDD" type="TimeDimension" foreignKey="cdd_date_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="POD" allMemberName="All POD Dates" caption="Date: POD" type="TimeDimension" foreignKey="pod_date_id">
+			<Hierarchy hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CarrPickupDate" allMemberName="All carrPickupDate" caption="Date: GI Date" type="TimeDimension" foreignKey="carrPickupDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CreatedDate" allMemberName="All CreatedDate" caption="Date: CreatedDate" type="TimeDimension" foreignKey="createdDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="UpliftDate" allMemberName="All UpliftDate" caption="Date: UpliftDate" type="TimeDimension" foreignKey="upliftDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<DimensionUsage name="Carrier" source="Carrier" foreignKey="carrCode" />
+		<DimensionUsage name="PreCarrier" source="PreCarrier" foreignKey="dlvryNum" />
+		<DimensionUsage name="MOT" source="MOT" foreignKey="modeOfTrspn" />
+		<DimensionUsage name="ShipToCountry" source="ShipToCountry" foreignKey="shipToCtryCd" />
+		<DimensionUsage name="Status" source="Status" foreignKey="statusCode" />
+		<DimensionUsage name="OrderType" source="OrderType" foreignKey="dlvryNum" />
+		<DimensionUsage name="ServiceLevel" source="ServiceLevel" foreignKey="dlvryNum" />
+		<DimensionUsage name="ShippingPoint" source="ShippingPoint" foreignKey="shpngCode" />
+		<DimensionUsage name="deliveryOrder" source="deliveryOrder" foreignKey="dlvryNum" visible="false" />
+
+		<Dimension name="matlGrp1" foreignKey="matlGrp1">
+			<Hierarchy hasAll="true" allMemberName="All matlGrp1s">
+				<Level name="matlGrp1" column="matlGrp1" />
+			</Hierarchy>
+		</Dimension>
+
+		<!-- Measures -->
+
+		<Measure name="Count" column="id" aggregator="count" formatString="#,#" />
+		<Measure name="DO Count" column="dlvryNum" aggregator="distinct-count" formatString="#,#" />
+		<Measure name="Piece count" column="dlvrdQty" aggregator="sum" formatString="#,#" />
+		
+	</Cube>
+
+	
+	<Cube name="HandlingUnit" visible="true" cache="true" enabled="true">
+		<Table name="handlingUnitFact" />
+
+
+		<Dimension name="CDD" allMemberName="All CDD Dates" caption="Date: CDD" type="TimeDimension" foreignKey="cdd_date_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="POD" allMemberName="All POD Dates" caption="Date: POD" type="TimeDimension" foreignKey="pod_date_id">
+			<Hierarchy hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CarrPickupDate" allMemberName="All carrPickupDate" caption="Date: GI Date" type="TimeDimension" foreignKey="carrPickupDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="CreatedDate" allMemberName="All CreatedDate" caption="Date: CreatedDate" type="TimeDimension" foreignKey="createdDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="UpliftDate" allMemberName="All UpliftDate" caption="Date: UpliftDate" type="TimeDimension" foreignKey="upliftDate_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+		</Dimension>
+
+		<DimensionUsage name="Carrier" source="Carrier" foreignKey="carrCode" />
+		<DimensionUsage name="PreCarrier" source="PreCarrier" foreignKey="dlvryNum" />
+		<DimensionUsage name="MOT" source="MOT" foreignKey="modeOfTrspn" />
+		<DimensionUsage name="ShipToCountry" source="ShipToCountry" foreignKey="shipToCtryCd" />
+		<DimensionUsage name="Status" source="Status" foreignKey="statusCode" />
+		<DimensionUsage name="OrderType" source="OrderType" foreignKey="dlvryNum" />
+		<DimensionUsage name="ServiceLevel" source="ServiceLevel" foreignKey="dlvryNum" />
+		<DimensionUsage name="ShippingPoint" source="ShippingPoint" foreignKey="shpngCode" />
+		<DimensionUsage name="deliveryOrder" source="deliveryOrder" foreignKey="dlvryNum" visible="false" />
+
+		<!-- Measures -->
+
+		<Measure name="HU Count" column="sscc" aggregator="distinct-count" formatString="#,#" />
+		<Measure name="Item Count" column="itemId" aggregator="distinct-count" formatString="#,#" />
+		<Measure name="DO Count" column="dlvryNum" aggregator="distinct-count" formatString="#,#" />
+
+		<!-- <Measure name="netWeight" column="netWeight" aggregator="sum" formatString="#,0.0" />
+		<Measure name="totalWeight" column="totalWeight" aggregator="sum" formatString="#,0.0" /> -->
+	</Cube>
+
+
+	<Cube name="DOE_All" visible="false" cache="true" enabled="true">
+		<Table name="DOEventFact" />
+
+		<Dimension name="CDD" allMemberName="All CDD Dates" caption="Date: CDD" type="TimeDimension" foreignKey="cdd_date_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<Dimension name="POD" allMemberName="All POD Dates" caption="Date: POD" type="TimeDimension" foreignKey="pod_date_id">
+			<Hierarchy hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All POD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="week_day_id" ordinalColumn="date_id" nameColumn="week_day_name"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+
+		<!-- createTime\statusTime -->
+
+		<DimensionUsage name="deliveryOrder" source="deliveryOrder" foreignKey="dlvryNum" visible="false" />
+		<DimensionUsage name="Carrier" source="Carrier" foreignKey="carrCode" />
+		<DimensionUsage name="MOT" source="MOT" foreignKey="modeOfTrspn" />
+		<DimensionUsage name="ShipToCountry" source="ShipToCountry" foreignKey="shipToCtryCd" />
+		<DimensionUsage name="Status" source="Status" foreignKey="statusCode" />
+		<DimensionUsage name="OrderType" source="OrderType" foreignKey="dlvryNum" />
+		<DimensionUsage name="PreCarrier" source="PreCarrier" foreignKey="dlvryNum" />
+		<DimensionUsage name="ShippingPoint" source="ShippingPoint" foreignKey="shpngCode" />
+		<Dimension name="IOD_T" foreignKey="IOD_T_make">
+			<Hierarchy hasAll="true" allMemberName="All IOD_T">
+				<Level name="IOD_T" column="IOD_T_make" uniqueMembers="true" />
+			</Hierarchy>
+		</Dimension>
+
+		<!-- Measures -->
+
+		<Measure name="Count" column="id" caption="Total" aggregator="count" formatString="#,#" />
+
+		<CalculatedMember name="Status %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Status])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Country %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Countries])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="MOT %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All MOT])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Carrier %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All Carriers])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+
+		<!-- <CalculatedMember name="IOD_T %" dimension="Measures">
+			<Formula>([Measures].[Count])/([Measures].[Count],[All IOD_T])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember> -->
+
+		<CalculatedMember name="Make" dimension="Measures">
+			<Formula>([Measures].[Count],[IOD_T].[make])</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Fail" dimension="Measures">
+			<Formula>([Measures].[Count],[IOD_T].[fail])</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Make %" dimension="Measures">
+			<Formula>([Measures].[Make])/([Measures].[Make]+[Measures].[Fail])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Fail %" dimension="Measures">
+			<Formula>([Measures].[Fail])/([Measures].[Make]+[Measures].[Fail])</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+	</Cube>
+
+	<Cube name="IOD-C" visible="true" cache="true" enabled="true">
+		<Table name="DOEventStatusFact" />
+
+		<Dimension name="CDD" allMemberName="All CDD Dates" caption="Date: CDD" type="TimeDimension" foreignKey="cdd_date_id">
+			<Hierarchy hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="Year" column="year_id" ordinalColumn="year_id" type="Numeric" uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Quarter" column="qtr_id" ordinalColumn="qtr_id" nameColumn="qtr_name" uniqueMembers="false"
+					levelType="TimeQuarters" />
+				<Level name="Month" column="month_id" ordinalColumn="month_id" nameColumn="month_id" captionColumn="month_name" uniqueMembers="false"
+					type="Numeric" levelType="TimeMonths" />
+				<Level name="Date" column="date_id" ordinalColumn="date_id" uniqueMembers="true"
+				    levelType="TimeDays" /><!--  nameColumn="day_of_month" -->
+			</Hierarchy>
+
+			<Hierarchy name="Financial" hasAll="true" allMemberName="All CDD Dates" primaryKey="date_id">
+				<Table name="dateLatitude" />
+				<Level name="FinanceYear" column="finance_year_id" ordinalColumn="finance_year_id" type="Numeric"
+					uniqueMembers="true" levelType="TimeYears" />
+				<Level name="Week" column="finance_week_id" ordinalColumn="finance_week_id" type="Numeric" uniqueMembers="false"
+					levelType="TimeWeeks" />
+				<Level name="DayOfWeek" column="date_id" nameColumn="week_day_name" ordinalColumn="date_id"
+					uniqueMembers="true" type="Numeric" levelType="TimeDays" />
+			</Hierarchy>
+		</Dimension>
+		
+		<Dimension name="eventDeliveryOrder" foreignKey="dlvryNumE" visible="false">
+			<Hierarchy hasAll="true" allMemberName="All eventDeliveryOrder" primaryKey="dlvryNum">
+				<Table name="deliveryOrder" />
+				<Level name="EventDeliveryOrder" column="dlvryNum" />
+			</Hierarchy>
+		</Dimension>
+		
+		<Dimension name="failDeliveryOrder" foreignKey="dlvryNumF" visible="false">
+			<Hierarchy hasAll="true" allMemberName="All failDeliveryOrder" primaryKey="dlvryNum">
+				<Table name="deliveryOrder" />
+				<Level name="FailDeliveryOrder" column="dlvryNum" />
+			</Hierarchy>
+		</Dimension>
+		
+		<Dimension name="deliveryOrderStatusCode" foreignKey="statusCode" visible="false">
+			<Hierarchy hasAll="true" allMemberName="Do Status Code" primaryKey="dlvryNum">
+				<Table name="deliveryOrder" />
+				<Level name="doStatusCode" column="statusCode" />
+			</Hierarchy>
+		</Dimension>
+
+		<DimensionUsage name="deliveryOrder" source="deliveryOrder" foreignKey="dlvryNum" visible="false" />
+	
+		<DimensionUsage name="Carrier" source="Carrier" foreignKey="carrCode" />
+		<DimensionUsage name="PreCarrier" source="PreCarrier" foreignKey="dlvryNum" />
+		<DimensionUsage name="MOT" source="MOT" foreignKey="modeOfTrspn" />
+		<DimensionUsage name="ShipToCountry" source="ShipToCountry" foreignKey="shipToCtryCd" />
+		<DimensionUsage name="ShippingPoint" source="ShippingPoint" foreignKey="shpngCode" />
+		<DimensionUsage name="Status" source="Status" foreignKey="statusCode" />
+		<DimensionUsage name="OrderType" source="OrderType" foreignKey="dlvryNum" />
+		
+		<!-- Measures -->
+
+		<Measure name="DO Count" column="dlvryNum" caption="DO Count" aggregator="count" visible="false" />
+
+		<Measure name="Make" column="dlvryNumE" caption="Make Count" aggregator="count" formatString="#,#" />
+
+		<Measure name="Fail" column="dlvryNumF" caption="Fail Count" aggregator="count" formatString="#,#" />
+
+		<CalculatedMember name="Make %" dimension="Measures">
+			<Formula>[Measures].[Make]/[Measures].[DO Count]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Fail %" dimension="Measures">
+			<Formula>[Measures].[Fail]/[Measures].[DO Count]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Total DO" dimension="Measures">
+			<Formula>[Measures].[DO Count]</Formula>
+		</CalculatedMember>
+
+	</Cube>
+
+	<VirtualCube name="CDD">
+
+		<VirtualCubeDimension cubeName="DO_All" name="CDD" />
+		<VirtualCubeDimension cubeName="DO_All" name="POD" />
+		<VirtualCubeDimension cubeName="DO_All" name="CarrPickupDate" />
+		<VirtualCubeDimension cubeName="DO_All" name="CreatedDate" />
+		<VirtualCubeDimension cubeName="DO_All" name="UpliftDate" />
+		<VirtualCubeDimension cubeName="DO_All" name="deliveryOrder" />
+		<VirtualCubeDimension cubeName="DO_All" name="Carrier" />
+		<VirtualCubeDimension cubeName="DO_All" name="PreCarrier" />
+		<VirtualCubeDimension cubeName="DO_All" name="MOT" />
+		<VirtualCubeDimension cubeName="DO_All" name="ShipToCountry" />
+		<VirtualCubeDimension cubeName="DO_All" name="Status" />
+		<VirtualCubeDimension cubeName="DO_All" name="ServiceLevel" />
+		<VirtualCubeDimension cubeName="DO_All" name="ShippingPoint" />
+		<VirtualCubeDimension cubeName="DO_All" name="OrderType" />
+
+		<VirtualCubeDimension cubeName="DO_All" name="ReasonCategory" />
+
+		<VirtualCubeMeasure cubeName="DO_All" name="[Measures].[Count]" visible="false" />
+
+		<!-- start L1/* -->
+
+		<CalculatedMember name="Gross Make" caption="Gross Make" dimension="Measures">
+			<Formula>[ReasonCategory].[L1].[Gross Make]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Gross Make %" caption="Gross Make %" dimension="Measures">
+			<Formula>[Measures].[Gross Make]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Early" caption="Early" dimension="Measures">
+			<Formula>[ReasonCategory].[L1].[Early]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Early %" caption="Early %" dimension="Measures">
+			<Formula>[Measures].[Early]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Detractor" caption="Detractor" dimension="Measures">
+			<Formula>[ReasonCategory].[L1].[Detractor]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Detractor %" caption="Detractor %" dimension="Measures">
+			<Formula>[Measures].[Detractor]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<!-- end L1/* -->
+
+		<!-- start Detractor/* -->
+
+		<CalculatedMember name="Deferrals" caption="Deferral" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Deferrals]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Deferrals %" caption="Deferral %" dimension="Measures">
+			<Formula>[Measures].[Deferrals]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Network Issues" caption="Network Issues" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Network Issues]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Network Issues %" caption="Network Issues %" dimension="Measures">
+			<Formula>[Measures].[Network Issues]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Lenovo Issue" caption="Lenovo Issue" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Lenovo Issue]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Lenovo Issue %" caption="Lenovo Issue %" dimension="Measures">
+			<Formula>[Measures].[Lenovo Issue]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="LD" caption="LD" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[LD]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="LD %" caption="LD %" dimension="Measures">
+			<Formula>[Measures].[LD]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Customs issue" caption="Customs issue" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Customs issue]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Customs issue %" caption="Customs issue %" dimension="Measures">
+			<Formula>[Measures].[Customs issue]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="GL Origin issue" caption="GL Origin issue" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[GL Origin issue]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="GL Origin issue %" caption="GL Origin issue %" dimension="Measures">
+			<Formula>[Measures].[GL Origin issue]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Force Majeure" caption="Force Majeure" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Force Majeure]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Force Majeure %" caption="Force Majeure %" dimension="Measures">
+			<Formula>[Measures].[Force Majeure]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Un-analyzed" caption="Un-analyzed" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Un-analyzed]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Un-analyzed %" caption="Un-analyzed %" dimension="Measures">
+			<Formula>[Measures].[Un-analyzed]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Miss Reason code" caption="Miss Reason code" dimension="Measures">
+			<Formula>[ReasonCategory].[Category].[Miss Reason code]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Miss Reason code %" caption="Miss Reason code %" dimension="Measures">
+			<Formula>[Measures].[Miss Reason code]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<!-- end Detractor/* -->
+
+		<CalculatedMember name="Net Make" caption="Net Make" dimension="Measures">
+			<Formula>[Measures].[Gross Make]+[Measures].[Early]+[Measures].[Deferrals]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Net Make %" caption="Net Make %" dimension="Measures">
+			<Formula>[Measures].[Net Make]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Net Failed" caption="Net Failed" dimension="Measures">
+			<Formula>[Measures].[Detractor]-[Measures].[Deferrals]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Net Failed %" caption="Net Failed %" dimension="Measures">
+			<Formula>[Measures].[Net Failed]/[Measures].[Total DDL]</Formula>
+			<CalculatedMemberProperty name="FORMAT_STRING" value="0.00%" />
+		</CalculatedMember>
+
+		<CalculatedMember name="Net Make" dimension="ReasonCategory">
+			<Formula>[ReasonCategory].[L1].[Gross Make]
+				+[ReasonCategory].[L1].[Early]+[ReasonCategory].[Category].[Deferrals]
+			</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Net Failed" dimension="ReasonCategory">
+			<Formula>[ReasonCategory].[L1].[Detractor]-[ReasonCategory].[Category].[Deferrals]</Formula>
+		</CalculatedMember>
+
+		<CalculatedMember name="Total DDL" caption="Total DDL" dimension="Measures">
+			<Formula>[Measures].[Count]</Formula>
+		</CalculatedMember>
+
+	</VirtualCube>
+
+
+	<VirtualCube name="IOD-T">
+
+		<VirtualCubeDimension cubeName="DOE_All" name="POD" />
+		<VirtualCubeDimension cubeName="DOE_All" name="deliveryOrder" />
+
+		<VirtualCubeDimension cubeName="DOE_All" name="Carrier" />
+		<VirtualCubeDimension cubeName="DOE_All" name="MOT" />
+		<VirtualCubeDimension cubeName="DOE_All" name="ShipToCountry" />
+		<VirtualCubeDimension cubeName="DOE_All" name="ShippingPoint" />
+		<VirtualCubeDimension cubeName="DOE_All" name="Status" />
+		<VirtualCubeDimension cubeName="DOE_All" name="OrderType" />
+		<VirtualCubeDimension cubeName="DOE_All" name="PreCarrier" />
+		<VirtualCubeDimension cubeName="DOE_All" name="IOD_T" visible="false" />
+
+		<VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[Count]" visible="false" />
+
+		<!-- <VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[IOD_T %]" visible="false" /> -->
+		<VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[Make]" />
+		<VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[Make %]" />
+		<VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[Fail]" />
+		<VirtualCubeMeasure cubeName="DOE_All" name="[Measures].[Fail %]" />
+
+		<CalculatedMember name="DO Total" caption="DO Total" dimension="Measures">
+			<Formula>([Measures].[Count])</Formula>
+		</CalculatedMember>
+
+	</VirtualCube>
+
+</Schema>

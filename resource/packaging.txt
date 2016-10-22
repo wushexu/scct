@@ -1,0 +1,92 @@
+测试／生产环境打包
+
+scctbi-report使用外部属性文件：
+	/data/scctbi/config/reports.properties
+
+scctbi-daiku使用外部属性文件：
+	/data/scctbi/config/saiku.properties
+
+
+配置项目文件：
+
+1、scctbi-report/pom.xml
+	数据库切换为sqlserver:
+
+	<profiles>
+		<profile>
+			<id>mysql</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			...
+
+
+		<profile>
+			<id>sqlserver</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			...
+
+
+2、scctbi-report/src/main/webapp/WEB-INF/spring/root-context.xml
+	注释掉其他context:property-placeholder配置，打开下面配置：
+
+	<context:property-placeholder location="classpath:props/jdbc.properties,file:/data/scctbi/config/reports.properties"
+		system-properties-mode="OVERRIDE" />
+
+	认证方式切换为cas:
+
+	<import resource="spring-security-cas.xml" />
+	<!-- <import resource="spring-security-memory.xml" /> -->
+
+
+3、scctbi-report/src/main/webapp/WEB-INF/spring/root-context.xml
+	数据切换为JNDI:
+
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		...
+	</bean> -->
+	
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    	<property name="jndiName" value="java:jboss/datasources/scctbianalysis"/>
+	</bean>
+
+
+4、scctbi-report/src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml
+	注释掉其他context:property-placeholder配置，打开下面配置：
+
+	<context:property-placeholder location="classpath:props/jdbc.properties,file:/data/scctbi/config/reports.properties"
+		system-properties-mode="OVERRIDE" />
+
+
+
+5、scctbi-saiku/src/main/webapp/WEB-INF/applicationContext-saiku-webapp.xml
+
+	注释掉其他context:property-placeholder配置，打开下面配置：
+	<context:property-placeholder location="file:/data/scctbi/config/saiku.properties"
+		system-properties-mode="OVERRIDE" />
+
+	认证方式切换为cas:
+	<import resource="applicationContext-spring-security-cas.xml"/>
+	<!-- <import resource="applicationContext-spring-security-memory.xml"/> -->
+
+
+6、scctbi-saiku/src/main/webapp/js/saiku/Settings.js
+
+	SSO设为true:
+	var Settings = {
+    		VERSION: "Saiku 2.6",
+    		SSO: true,
+		...
+
+
+
+配置好后，
+进入scctbi-report目录，执行：
+	mvn clean package
+
+进入scctbi-saiku目录，执行：
+	mvn clean package
+
